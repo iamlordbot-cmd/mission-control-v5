@@ -31,7 +31,7 @@ export const missingTools = [
 export const projects: Project[] = [
   { name: 'Mission Control — v1', status: 'in-progress', updated: '2 min ago' },
   { name: 'Ops: nightly work window', status: 'done', updated: 'yesterday' },
-  { name: 'API connectors', status: 'blocked', updated: 'awaiting keys' },
+  { name: 'Connexions', status: 'blocked', updated: 'awaiting keys' },
 ]
 
 export const subAgents: SubAgentLog[] = [

@@ -1,16 +1,6 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import clsx from 'clsx'
-import {
-  Cpu,
-  KeyRound,
-  Link2,
-  LogOut,
-  Moon,
-  PlugZap,
-  Shield,
-  Sun,
-  Timer,
-} from 'lucide-react'
+import { Cpu, KeyRound, Link2, Moon, PlugZap, Shield, Sun, Timer } from 'lucide-react'
 import {
   connections,
   crons,
@@ -22,8 +12,6 @@ import {
   systemHealth,
   usage,
 } from './mock'
-
-const PASSWORD = 'IWThalassa4!'
 
 type Theme = 'dark' | 'light'
 
@@ -71,7 +59,17 @@ function Dot({ tone }: { tone: 'good' | 'warn' | 'bad' | 'neutral' }) {
   )
 }
 
-function HudCard({ title, icon, children, className }: { title: string; icon: React.ReactNode; children: React.ReactNode; className?: string }) {
+function HudCard({
+  title,
+  icon,
+  children,
+  className,
+}: {
+  title: string
+  icon: React.ReactNode
+  children: React.ReactNode
+  className?: string
+}) {
   return (
     <section className={clsx('hud rounded-3xl border border-border/10 bg-card/30 p-5 backdrop-blur-xl', className)}>
       <header className="mb-4 flex items-center justify-between">
@@ -87,60 +85,7 @@ function HudCard({ title, icon, children, className }: { title: string; icon: Re
   )
 }
 
-function Login({ onOk }: { onOk: () => void }) {
-  const { theme, setTheme } = useTheme()
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState<string | null>(null)
-
-  return (
-    <div className="relative min-h-dvh overflow-hidden">
-      <div className="pointer-events-none absolute inset-0 stars" />
-      <div className="mx-auto flex min-h-dvh max-w-md flex-col justify-center px-6">
-        <div className="mb-8 flex items-center justify-between">
-          <div>
-            <div className="text-xs tracking-[0.30em] text-muted/70">MISSION CONTROL</div>
-            <h1 className="mt-2 text-2xl font-semibold">Docking</h1>
-          </div>
-          <ThemeToggle theme={theme} setTheme={setTheme} />
-        </div>
-
-        <div className="hud rounded-3xl border border-border/10 bg-card/30 p-6 backdrop-blur-xl">
-          <p className="text-sm text-muted/70">Enter passphrase to access the HUD.</p>
-          <form
-            className="mt-6 space-y-4"
-            onSubmit={(e) => {
-              e.preventDefault()
-              if (password === PASSWORD) {
-                localStorage.setItem('mc_auth', '1')
-                onOk()
-              } else {
-                setError('Mot de passe incorrect.')
-              }
-            }}
-          >
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => {
-                setPassword(e.target.value)
-                setError(null)
-              }}
-              className="w-full rounded-2xl border border-border/10 bg-transparent px-4 py-3 outline-none focus:ring-2 focus:ring-accent/50"
-              placeholder="Passphrase"
-              autoFocus
-            />
-            {error ? <div className="rounded-2xl border border-bad/30 bg-bad/10 px-4 py-3 text-sm">{error}</div> : null}
-            <button className="w-full rounded-2xl bg-fg px-4 py-3 text-sm font-semibold text-bg hover:opacity-90">Engage</button>
-          </form>
-        </div>
-
-        <div className="mt-5 text-center text-xs text-muted/60">v5 • Space HUD layout</div>
-      </div>
-    </div>
-  )
-}
-
-function Dashboard({ onLogout }: { onLogout: () => void }) {
+function Dashboard() {
   const { theme, setTheme } = useTheme()
 
   return (
@@ -156,21 +101,18 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
           </div>
           <div className="flex items-center gap-3">
             <ThemeToggle theme={theme} setTheme={setTheme} />
-            <button
-              className="inline-flex items-center gap-2 rounded-full border border-border/10 bg-card/40 px-3 py-2 text-sm hover:opacity-90"
-              onClick={onLogout}
-            >
-              <LogOut size={16} /> Logout
-            </button>
           </div>
         </header>
 
         <div className="mt-8 grid grid-cols-1 gap-4 lg:grid-cols-12">
           <div className="lg:col-span-4 space-y-4">
             <HudCard title="Skills" icon={<Cpu size={16} />}>
-              <div className="space-y-2">
-                {skills.slice(0, 5).map((s) => (
-                  <div key={s.name} className="flex items-center justify-between rounded-2xl border border-border/10 bg-card/30 px-3 py-2 text-sm">
+              <div className="max-h-72 space-y-2 overflow-y-auto pr-1">
+                {skills.map((s) => (
+                  <div
+                    key={s.name}
+                    className="flex items-center justify-between rounded-2xl border border-border/10 bg-card/30 px-3 py-2 text-sm"
+                  >
                     <span className="text-fg">{s.name}</span>
                     <div className="flex items-center gap-2">
                       <Dot tone={s.status === 'ok' ? 'good' : s.status === 'warn' ? 'warn' : 'bad'} />
@@ -179,7 +121,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                   </div>
                 ))}
               </div>
-              <div className="mt-3 text-xs text-muted/60">+ {Math.max(0, skills.length - 5)} more</div>
+              <div className="mt-3 text-xs text-muted/60">{skills.length} total</div>
             </HudCard>
 
             <HudCard title="Manques" icon={<PlugZap size={16} />}>
@@ -196,14 +138,19 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
 
           <div className="lg:col-span-4">
             <div className="hud orb relative flex min-h-[420px] flex-col justify-between overflow-hidden rounded-[42px] border border-border/10 bg-card/20 p-6 backdrop-blur-xl">
-              <div className="absolute inset-0 opacity-40" style={{
-                backgroundImage:
-                  'radial-gradient(circle at 50% 50%, rgba(255,255,255,0.16), transparent 55%), radial-gradient(circle at 45% 55%, rgba(255,255,255,0.08), transparent 45%)',
-              }} />
+              <div
+                className="absolute inset-0 opacity-40"
+                style={{
+                  backgroundImage:
+                    'radial-gradient(circle at 50% 50%, rgba(255,255,255,0.16), transparent 55%), radial-gradient(circle at 45% 55%, rgba(255,255,255,0.08), transparent 45%)',
+                }}
+              />
               <div className="relative">
                 <div className="text-xs tracking-[0.35em] text-muted/70">CORE</div>
                 <div className="mt-2 text-2xl font-semibold">System Pulse</div>
-                <div className="mt-2 text-sm text-muted/70">Uptime {systemHealth.uptime} • Errors {systemHealth.recentErrors}</div>
+                <div className="mt-2 text-sm text-muted/70">
+                  Uptime {systemHealth.uptime} • Errors {systemHealth.recentErrors}
+                </div>
               </div>
 
               <div className="relative grid grid-cols-2 gap-3">
@@ -219,9 +166,14 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                   <div className="text-xs text-muted/70">API status</div>
                   <div className="mt-3 grid grid-cols-2 gap-2">
                     {systemHealth.apiStatus.map((a) => (
-                      <div key={a.name} className="flex items-center justify-between rounded-2xl border border-border/10 bg-card/20 px-3 py-2 text-sm">
+                      <div
+                        key={a.name}
+                        className="flex items-center justify-between rounded-2xl border border-border/10 bg-card/20 px-3 py-2 text-sm"
+                      >
                         <span className="text-muted/70">{a.name}</span>
-                        <span className={clsx('text-xs font-semibold', a.status === 'ok' ? 'text-good' : 'text-warn')}>
+                        <span
+                          className={clsx('text-xs font-semibold', a.status === 'ok' ? 'text-good' : 'text-warn')}
+                        >
                           {a.status.toUpperCase()}
                         </span>
                       </div>
@@ -292,10 +244,16 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                     <div className="text-xs text-muted/70">Global security score</div>
                     <div className="mt-1 text-3xl font-semibold">{security.score}</div>
                   </div>
-                  <div className={clsx(
-                    'rounded-full px-3 py-1 text-xs font-semibold border',
-                    security.score >= 85 ? 'border-good/30 bg-good/10 text-good' : security.score >= 70 ? 'border-warn/35 bg-warn/10 text-warn' : 'border-bad/35 bg-bad/10 text-bad'
-                  )}>
+                  <div
+                    className={clsx(
+                      'rounded-full px-3 py-1 text-xs font-semibold border',
+                      security.score >= 85
+                        ? 'border-good/30 bg-good/10 text-good'
+                        : security.score >= 70
+                          ? 'border-warn/35 bg-warn/10 text-warn'
+                          : 'border-bad/35 bg-bad/10 text-bad'
+                    )}
+                  >
                     {security.score >= 85 ? 'STRONG' : security.score >= 70 ? 'WATCH' : 'RISK'}
                   </div>
                 </div>
@@ -315,10 +273,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                   <div key={a.title} className="rounded-2xl border border-border/10 bg-card/20 px-3 py-3">
                     <div className="flex items-center justify-between">
                       <div className="text-sm font-semibold">{a.title}</div>
-                      <div className={clsx(
-                        'text-xs font-semibold',
-                        a.severity === 'high' ? 'text-bad' : 'text-warn'
-                      )}>
+                      <div className={clsx('text-xs font-semibold', a.severity === 'high' ? 'text-bad' : 'text-warn')}>
                         {a.severity.toUpperCase()}
                       </div>
                     </div>
@@ -347,7 +302,9 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                 <div className="mt-2 space-y-2">
                   {security.access.map((x) => (
                     <div key={`${x.when}-${x.ip}-${x.action}`} className="flex items-center justify-between text-xs">
-                      <span className="text-muted/70">{x.when} • {x.ip}</span>
+                      <span className="text-muted/70">
+                        {x.when} • {x.ip}
+                      </span>
                       <span className={clsx('font-semibold', x.result === 'success' ? 'text-good' : 'text-bad')}>
                         {x.action}:{x.result}
                       </span>
@@ -369,7 +326,10 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
             <HudCard title="Crons" icon={<Timer size={16} />}>
               <div className="space-y-2">
                 {crons.map((c) => (
-                  <div key={c.name} className="flex items-start justify-between rounded-2xl border border-border/10 bg-card/30 px-3 py-3">
+                  <div
+                    key={c.name}
+                    className="flex items-start justify-between rounded-2xl border border-border/10 bg-card/30 px-3 py-3"
+                  >
                     <div>
                       <div className="text-sm font-semibold">{c.name}</div>
                       <div className="mt-1 text-xs text-muted/70">{c.schedule}</div>
@@ -392,25 +352,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
 }
 
 function App() {
-  const [authed, setAuthed] = useState(false)
-
-  useEffect(() => {
-    setAuthed(localStorage.getItem('mc_auth') === '1')
-  }, [])
-
-  const view = useMemo(() => {
-    if (!authed) return <Login onOk={() => setAuthed(true)} />
-    return (
-      <Dashboard
-        onLogout={() => {
-          localStorage.removeItem('mc_auth')
-          setAuthed(false)
-        }}
-      />
-    )
-  }, [authed])
-
-  return view
+  return <Dashboard />
 }
 
 export default App
