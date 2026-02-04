@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import clsx from 'clsx'
 import {
   Cpu,
+  KeyRound,
   Link2,
   LogOut,
   Moon,
@@ -15,6 +16,7 @@ import {
   crons,
   missingTools,
   projects,
+  security,
   skills,
   subAgents,
   systemHealth,
@@ -280,6 +282,87 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                     ))}
                   </div>
                 </div>
+              </div>
+            </HudCard>
+
+            <HudCard title="Sécurité" icon={<KeyRound size={16} />} className="border-bad/20">
+              <div className="rounded-2xl border border-border/10 bg-card/20 px-3 py-3">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="text-xs text-muted/70">Global security score</div>
+                    <div className="mt-1 text-3xl font-semibold">{security.score}</div>
+                  </div>
+                  <div className={clsx(
+                    'rounded-full px-3 py-1 text-xs font-semibold border',
+                    security.score >= 85 ? 'border-good/30 bg-good/10 text-good' : security.score >= 70 ? 'border-warn/35 bg-warn/10 text-warn' : 'border-bad/35 bg-bad/10 text-bad'
+                  )}>
+                    {security.score >= 85 ? 'STRONG' : security.score >= 70 ? 'WATCH' : 'RISK'}
+                  </div>
+                </div>
+                <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-fg/10">
+                  <div
+                    className={clsx(
+                      'h-full rounded-full',
+                      security.score >= 85 ? 'bg-good' : security.score >= 70 ? 'bg-warn' : 'bg-bad'
+                    )}
+                    style={{ width: `${security.score}%` }}
+                  />
+                </div>
+              </div>
+
+              <div className="mt-3 grid gap-2">
+                {security.alerts.map((a) => (
+                  <div key={a.title} className="rounded-2xl border border-border/10 bg-card/20 px-3 py-3">
+                    <div className="flex items-center justify-between">
+                      <div className="text-sm font-semibold">{a.title}</div>
+                      <div className={clsx(
+                        'text-xs font-semibold',
+                        a.severity === 'high' ? 'text-bad' : 'text-warn'
+                      )}>
+                        {a.severity.toUpperCase()}
+                      </div>
+                    </div>
+                    <div className="mt-1 text-xs text-muted/70">{a.note}</div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="mt-3 rounded-2xl border border-border/10 bg-card/20 px-3 py-3">
+                <div className="text-xs text-muted/70">API keys</div>
+                <div className="mt-2 space-y-2">
+                  {security.apiKeys.map((k) => (
+                    <div key={k.name} className="flex items-start justify-between gap-3 text-sm">
+                      <div>
+                        <div className="font-semibold">{k.name}</div>
+                        <div className="mt-0.5 text-xs text-muted/70">{k.note}</div>
+                      </div>
+                      <Dot tone={k.status === 'ok' ? 'good' : k.status === 'warn' ? 'warn' : 'bad'} />
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="mt-3 rounded-2xl border border-border/10 bg-card/20 px-3 py-3">
+                <div className="text-xs text-muted/70">Recent access</div>
+                <div className="mt-2 space-y-2">
+                  {security.access.map((x) => (
+                    <div key={`${x.when}-${x.ip}-${x.action}`} className="flex items-center justify-between text-xs">
+                      <span className="text-muted/70">{x.when} • {x.ip}</span>
+                      <span className={clsx('font-semibold', x.result === 'success' ? 'text-good' : 'text-bad')}>
+                        {x.action}:{x.result}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="mt-3 rounded-2xl border border-border/10 bg-card/20 px-3 py-3">
+                <div className="text-xs text-muted/70">Recommendations</div>
+                <ul className="mt-2 space-y-1 text-xs text-muted/70">
+                  {security.recommendations.map((r) => (
+                    <li key={r}>• {r}</li>
+                  ))}
+                </ul>
               </div>
             </HudCard>
 
